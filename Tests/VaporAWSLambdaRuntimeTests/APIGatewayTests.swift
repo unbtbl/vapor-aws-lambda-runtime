@@ -14,7 +14,7 @@ final class APIGatewayTests: XCTestCase {
             body: .init(string: body)
         )
 
-        let response = APIGateway.Response(response: vaporResponse)
+        let response = APIGatewayResponse(response: vaporResponse)
 
         XCTAssertEqual(response.body, body)
         XCTAssertEqual(response.multiValueHeaders?.count, 2)

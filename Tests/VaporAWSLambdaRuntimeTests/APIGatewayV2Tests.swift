@@ -23,7 +23,7 @@ final class APIGatewayV2Tests: XCTestCase {
             body: .init(string: body)
         )
 
-        let context = Lambda.Context(
+        let context = LambdaContext(
             requestID: "abc123",
             traceID: AmazonHeaders.generateXRayTraceID(),
             invokedFunctionARN: "function-arn",
@@ -33,8 +33,8 @@ final class APIGatewayV2Tests: XCTestCase {
             allocator: allocator
         )
 
-        var response: APIGateway.V2.Response?
-        XCTAssertNoThrow(response = try APIGateway.V2.Response.from(response: vaporResponse, in: context).wait())
+        var response: APIGatewayV2Response?
+        XCTAssertNoThrow(response = try APIGatewayV2Response.from(response: vaporResponse, in: context).wait())
 
         XCTAssertEqual(response?.body, body)
         XCTAssertEqual(response?.headers?.count, 2)
