@@ -54,8 +54,8 @@ extension VaporLambda {
     }
 
     public static func main() async throws {
+        let app = try Application(.detect())
         if Self.requestSource.source == .vapor {
-            let app = try Application(.detect())
             let lambda = try await Self(app: app)
 
             try await lambda.configureApplication(app)
