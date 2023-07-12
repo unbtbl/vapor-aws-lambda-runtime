@@ -68,6 +68,7 @@ extension VaporLambda {
                 try await lambda.addRoutes(to: app)
             } catch {
                 app.logger.report(error: error)
+                try await lambda.deconfigureApplication(app)
                 throw error
             }
 
