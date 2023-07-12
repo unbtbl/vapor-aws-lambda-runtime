@@ -23,8 +23,13 @@ extension VaporLambda {
             let app = try Application(.detect())
             let lambda = try await Self(app: app)
 
-            try await lambda.configureApplication(app)
-            try await lambda.addRoutes(to: app)
+            do {
+                try await lambda.configureApplication(app)
+                try await lambda.addRoutes(to: app)
+            } catch {
+                app.logger.report(error: error)
+                throw error
+            }
 
             context.terminator.register(name: "Vapor App") { eventLoop in
                 let promise = eventLoop.makePromise(of: Void.self)
@@ -58,11 +63,22 @@ extension VaporLambda {
         if Self.requestSource.source == .vapor {
             let lambda = try await Self(app: app)
 
-            try await lambda.configureApplication(app)
-            try await lambda.addRoutes(to: app)
+            do {
+                try await lambda.configureApplication(app)
+                try await lambda.addRoutes(to: app)
+            } catch {
+                app.logger.report(error: error)
+                throw error
+            }
 
-            try app.start()
-            try await app.running?.onStop.get()
+            do {
+                try app.start()
+                try await app.running?.onStop.get()
+                try await lambda.deconfigureApplication(app)
+            } catch {
+                try await lambda.deconfigureApplication(app)
+                throw error
+            }
         } else {
             let handler: any ByteBufferLambdaHandler.Type = Self.self
             handler.main()
