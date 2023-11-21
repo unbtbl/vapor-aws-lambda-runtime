@@ -10,6 +10,9 @@ public protocol VaporLambda: ByteBufferLambdaHandler {
     var app: Application { get }
     static var requestSource: RequestSource { get }
 
+    /// Used to set up globals such as logging, tracing, metrics, etc.
+    static func setup() async throws
+
     func configureApplication(_ app: Application) async throws
     func deconfigureApplication(_ app: Application) async throws
 
@@ -17,6 +20,8 @@ public protocol VaporLambda: ByteBufferLambdaHandler {
 }
 
 extension VaporLambda {
+    public static func setup() async throws {}
+
     public static func makeHandler(context: LambdaInitializationContext) -> EventLoopFuture<Self> {
         let promise = context.eventLoop.makePromise(of: Self.self)
         promise.completeWithTask {
@@ -59,6 +64,7 @@ extension VaporLambda {
     }
 
     public static func main() async throws {
+        try await Self.setup()
         let app = try Application(.detect())
         if Self.requestSource.source == .vapor {
             let lambda = try await Self(app: app)
