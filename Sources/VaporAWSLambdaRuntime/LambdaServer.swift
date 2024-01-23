@@ -1,5 +1,7 @@
 import AWSLambdaEvents
 import AWSLambdaRuntime
+import NIOPosix
+import NIOCore
 import Vapor
 
 // MARK: LambdaServer
@@ -87,8 +89,13 @@ extension VaporLambda {
                 throw error
             }
         } else {
-            let handler: any ByteBufferLambdaHandler.Type = Self.self
-            handler.main()
+            let runtime = LambdaRuntimeFactory.makeRuntime(
+                Self.self, 
+                eventLoop: NIOSingletons.posixEventLoopGroup.any(),
+                logger: app.logger
+            )
+            try await runtime.start().get()
+            _ = try await runtime.shutdownFuture.get()
         }
     }
 
