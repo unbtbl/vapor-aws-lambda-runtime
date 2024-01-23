@@ -81,7 +81,7 @@ extension VaporLambda {
             }
 
             do {
-                try app.start()
+                try await app.startup()
                 try await app.running?.onStop.get()
                 try await lambda.deconfigureApplication(app)
             } catch {
